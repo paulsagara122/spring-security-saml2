@@ -6,8 +6,8 @@ spring:
           okta:
             signing:
               credentials:
-                - private-key-location: classpath:local.key
-                  certificate-location: classpath:local.crt
+                - private-key-location: classpath:certs/local.key
+                  certificate-location: classpath:certs/local.crt
             singlelogout:
               url: https://dev-56617222.okta.com/app/dev-56617222_springbootsaml_1/exk8b5jr6vYQqVXp45d7/slo/saml
               binding: post
@@ -21,14 +21,20 @@ spring:
           authgateway:
             signing:
               credentials:
-                - private-key-location: classpath:authgateway.key
-                  certificate-location: classpath:authgateway.crt
+                - private-key-location: classpath:certs/sp-private-key.pem
+                  certificate-location: classpath:certs/idp-public-key.crt
             singlelogout:
-              url: https://authgateway.example.com/sso/saml/logout
+              url: http://localhost:9090/api/v1/saml/logout
               binding: post
               response-url: "{baseUrl}/logout/saml2/slo"
             assertingparty:
               metadata-uri: classpath:metadata/metadata-idp-authgateway.xml
               singlesignon:
-                url: https://authgateway.example.com/sso/saml
+                url: http://localhost:9090/api/v1/saml/auth/login
                 binding: post
+
+logging:
+  level:
+    org.springframework.security.saml2: DEBUG
+    org.springframework.security: DEBUG
+    com.authgateway: DEBUG
