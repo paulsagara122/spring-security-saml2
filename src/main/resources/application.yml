@@ -17,6 +17,9 @@ spring:
               singlesignon:
                 url: https://dev-56617222.okta.com/app/dev-56617222_springbootsaml_1/sso/saml
                 binding: post
+              verification:
+                signature:
+                  enabled: false  # Disable signature validation for Okta
 
           authgateway:
             signing:
@@ -32,6 +35,10 @@ spring:
               singlesignon:
                 url: http://localhost:9090/api/v1/saml/auth/login
                 binding: post
+              verification:
+                signature:
+                  enabled: false  # Disable signature validation for AuthGateway
+
 
 logging:
   level:
