@@ -1,51 +1,133 @@
-<!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:th="https://www.thymeleaf.org"
-      xmlns:sec="https://www.thymeleaf.org/thymeleaf-extras-springsecurity5">
-
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Baeldung Example for Spring Security - SAML 2.0 Login/Logout</title>
-    <meta charset="utf-8" />
+    <title>AuthGateway Service Provider App</title>
     <style>
-        span,
-        dt {
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa; /* Light gray background */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            margin: 0;
+            color: #333; /* Dark text color for contrast */
+        }
+        .header {
+            background-color: #2c3e50; /* Dark blue-gray for finance look */
+            color: #ffffff; /* White text for high contrast */
+            padding: 15px 0;
+            width: 100%;
+            text-align: center;
+            font-size: 24px;
             font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 50px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .header .app-name {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f8f9fa; /* Light color for contrast */
+            text-transform: uppercase;
+        }
+        .header .user-info {
+            font-size: 18px;
+            color: #f8f9fa;
+            font-weight: 500;
+            padding-right: 20px;
+        }
+        .header .logout-btn {
+            background-color: #e74c3c; /* Red for a clear call to action */
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .header .logout-btn:hover {
+            background-color: #c0392b; /* Darker red on hover */
+        }
+        .container {
+            width: 100%;
+            max-width: 900px;
+            background-color: #ffffff; /* White background for content */
+            border-radius: 8px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            margin-top: 30px;
+            text-align: center;
+        }
+        h2 {
+            font-size: 28px;
+            margin-bottom: 20px;
+            color: #2c3e50; /* Dark blue-gray text */
+        }
+        p {
+            font-size: 18px;
+            color: #333;
+        }
+        .highlight {
+            font-weight: bold;
+            color: #3498db; /* Finance blue for highlighting key info */
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            background-color: white;
+        }
+        th, td {
+            padding: 12px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #3498db; /* Blue header for a clean look */
+            color: white;
+        }
+        td {
+            background-color: #ecf0f1; /* Light gray background for data rows */
         }
     </style>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
-          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
-
 <body>
-<div class="container">
-    <ul class="nav">
-        <li class="nav-item">
-            <form th:action="@{/logout}" method="post">
-                <button class="btn btn-primary" id="rp_logout_button" type="submit">
-                    Logout
-                </button>
-            </form>
-        </li>
-    </ul>
+
+<div class="header">
+    <div class="app-name">
+        AuthGateway
+    </div>
+    <div class="user-info">
+        Welcome, <span class="highlight" th:text="${emailAddress}">User</span>!
+    </div>
+    <button class="logout-btn" th:onclick="|window.location.href='/logout'|">Logout</button>
 </div>
-<main role="main" class="container">
-    <h1 class="mt-5">Baeldung Example for SAML 2.0 Login/Logout with Spring Security</h1>
-    <p class="lead">You are successfully logged in as <span sec:authentication="name"></span></p>
-    <h2 class="mt-2">User Identity Attributes</h2>
-    <table class='table table-striped'>
-        <thead>
+
+<div class="container">
+    <h2>User Details</h2>
+    <p><strong>Role:</strong> <span class="highlight" th:text="${role}"></span></p>
+    <p><strong>Department:</strong> <span class="highlight" th:text="${department}"></span></p>
+
+    <h3>User Attributes</h3>
+    <table>
         <tr>
             <th>Attribute</th>
             <th>Value</th>
         </tr>
-        </thead>
-        <tbody>
-        <tr th:each="userAttribute : ${userAttributes}">
-            <th th:text="${userAttribute.key}"></th>
-            <td th:text="${userAttribute.value}"></td>
+        <tr th:each="entry : ${userAttributes}">
+            <td th:text="${entry.key}"></td>
+            <td>
+                <ul>
+                    <li th:each="val : ${entry.value}" th:text="${val}"></li>
+                </ul>
+            </td>
         </tr>
-        </tbody>
     </table>
-</main>
-</body>
+</div>
 
+</body>
 </html>

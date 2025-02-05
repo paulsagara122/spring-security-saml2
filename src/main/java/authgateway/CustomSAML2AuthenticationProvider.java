@@ -2,17 +2,18 @@ package authgateway;
 
 import org.opensaml.saml.saml2.core.Assertion;
 import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.Attribute;
+import org.opensaml.saml.saml2.core.AttributeStatement;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.core.AuthenticatedPrincipal;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.AuthorityUtils;
-import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.saml2.provider.service.authentication.Saml2Authentication;
 import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticationToken;
+import org.springframework.security.saml2.provider.service.authentication.Saml2AuthenticatedPrincipal;
 import org.springframework.stereotype.Component;
 
-import java.util.Collections;
+import java.util.*;
 
 @Component
 public class CustomSAML2AuthenticationProvider implements AuthenticationProvider {
@@ -25,39 +26,77 @@ public class CustomSAML2AuthenticationProvider implements AuthenticationProvider
 
         Saml2AuthenticationToken token = (Saml2AuthenticationToken) authentication;
 
-        // Get the SAML response (the raw SAML response string)
-        String saml2Response = token.getSaml2Response(); // This gets the raw SAML response
-
+        // Get the raw SAML response
+        String saml2Response = token.getSaml2Response();
         if (saml2Response == null || saml2Response.isEmpty()) {
             throw new BadCredentialsException("SAML response is empty or invalid");
         }
 
-        // Parse the response using the Saml2ResponseParser utility class
-        Response response = Saml2ResponseParser.parseSaml2Response(saml2Response);
+        // Parse the SAML response
+        Response response;
+        try {
+            response = Saml2ResponseParser.parseSaml2Response(saml2Response);
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing SAML response", e);
+        }
 
-        // Assuming only the first assertion is needed
+        // Extract user details from SAML assertion
         Assertion assertion = response.getAssertions().get(0);
-
-        // Validate the assertion signature and perform other checks
-        validateAssertionSignature(assertion);
-
-        // Get the principal from the assertion (usually the NameID)
         String principalName = assertion.getSubject().getNameID().getValue();
 
-        // Create an authenticated principal (User object)
-        User principal = new User(principalName, "", AuthorityUtils.createAuthorityList("ROLE_USER"));
-
-        // Return the authentication object with the raw SAML response
-        return new Saml2Authentication((AuthenticatedPrincipal) principal, saml2Response,
-                AuthorityUtils.createAuthorityList("ROLE_USER"));
-    }
-
-    private void validateAssertionSignature(Assertion assertion) {
-        // Signature validation logic (simplified)
-        if (assertion.getSignature() == null) {
-            throw new BadCredentialsException("Invalid assertion signature");
+        // Extract attributes from the assertion
+        Map<String, List<Object>> attributes = new HashMap<>();
+        for (AttributeStatement statement : assertion.getAttributeStatements()) {
+            for (Attribute attribute : statement.getAttributes()) {
+                List<Object> attributeValues = new ArrayList<>();
+                // Log to debug the attribute name and values
+                System.out.println("Attribute Name: " + attribute.getName());
+                attribute.getAttributeValues().forEach(value -> {
+                    String valueStr = value.getDOM().getTextContent();  // Ensure extracting the correct value as String
+                    System.out.println("Attribute Value: " + valueStr);  // Log each value to check if they are correct
+                    attributeValues.add(valueStr);  // Add the value as a string
+                });
+                attributes.put(attribute.getName(), attributeValues);
+            }
         }
-        // Implement signature verification logic here using a public key, etc.
+
+        // Debugging: Log attributes to check
+        System.out.println("Extracted Attributes: " + attributes);
+
+        // Assign roles/authorities based on attributes (like 'Role')
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        if (attributes.containsKey("Role")) {
+            List<Object> roles = attributes.get("Role");
+            for (Object role : roles) {
+                authorities.add(() -> "ROLE_" + role.toString().toUpperCase());
+            }
+        } else {
+            authorities.add(() -> "ROLE_USER");
+        }
+
+        // Assign the Department to authorities if needed (optional)
+        if (attributes.containsKey("Department")) {
+            List<Object> departments = attributes.get("Department");
+            for (Object department : departments) {
+                System.out.println("Department: " + department);  // Log the department
+            }
+        }
+
+        // Create a valid Saml2AuthenticatedPrincipal
+        Saml2AuthenticatedPrincipal principal = new Saml2AuthenticatedPrincipal() {
+            @Override
+            public String getName() {
+                return principalName;
+            }
+
+            @Override
+            public Map<String, List<Object>> getAttributes() {
+                return attributes;
+            }
+        };
+
+        // Return a properly constructed Saml2Authentication object
+        return new Saml2Authentication(principal, saml2Response, authorities);
     }
 
     @Override
