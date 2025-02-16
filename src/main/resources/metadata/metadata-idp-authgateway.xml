@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<md:EntityDescriptor entityID="http://localhost:9090/api/v1/saml/auth/login" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
+<md:EntityDescriptor entityID="http://localhost:9090/api/v1/saml-apps/7fdc623d-c142-467f-85ce-e843580407a9" xmlns:md="urn:oasis:names:tc:SAML:2.0:metadata">
     <md:IDPSSODescriptor WantAuthnRequestsSigned="false" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
         <md:KeyDescriptor use="signing"><ds:KeyInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
             <ds:X509Data>
@@ -42,7 +42,7 @@
         <md:SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:9090/api/v1/saml/logout"/>
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:unspecified</md:NameIDFormat>
         <md:NameIDFormat>urn:oasis:names:tc:SAML:1.1:nameid-format:emailAddress</md:NameIDFormat>
-        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:9090/api/v1/saml/auth/login"/>
-        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:9090/api/v1/saml/auth/login"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="http://localhost:9090/api/v1/saml/auth/login/7fdc623d-c142-467f-85ce-e843580407a9"/>
+        <md:SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="http://localhost:9090/api/v1/saml/auth/login/7fdc623d-c142-467f-85ce-e843580407a9"/>
     </md:IDPSSODescriptor>
 </md:EntityDescriptor>

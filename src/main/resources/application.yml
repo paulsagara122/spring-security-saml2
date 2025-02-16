@@ -33,7 +33,7 @@ spring:
             assertingparty:
               metadata-uri: classpath:metadata/metadata-idp-authgateway.xml
               singlesignon:
-                url: http://localhost:9090/api/v1/saml/auth/login
+                url: http://localhost:9090/api/v1/saml/auth/login/7fdc623d-c142-467f-85ce-e843580407a9
                 binding: post
               verification:
                 signature:
